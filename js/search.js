@@ -1,8 +1,9 @@
 document.getElementById('searchForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const searchTerm = document.getElementById('searchTerm').value.trim();
-    if (searchTerm === '') {
-      document.getElementById('response').textContent = SearchTerm;
+    const validInputRegex = /^[^\d\s]+$/;
+    if (searchTerm === '' || !validInputRegex.test(searchTerm)) {
+      document.getElementById('response').textContent = valid;
       return;
     }
     const xhr = new XMLHttpRequest();
@@ -12,7 +13,8 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
         const response = JSON.parse(xhr.responseText);
         document.getElementById('response').textContent = response.message;
       } else {
-        document.getElementById('response').textContent = Error + xhr.statusText;
+        const response = JSON.parse(xhr.responseText);
+        document.getElementById('response').textContent = Error + response.error;
       }
     };
     xhr.send();

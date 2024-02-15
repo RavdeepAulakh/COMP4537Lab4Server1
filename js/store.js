@@ -2,8 +2,9 @@ document.getElementById('storeForm').addEventListener('submit', function(event) 
     event.preventDefault();
     const word = document.getElementById('word').value.trim();
     const definition = document.getElementById('definition').value.trim();
-    if (word === '' || definition === '') {
-      document.getElementById('feedback').textContent = EnterMessage;
+    const validInputRegex = /^[^\d\s]+$/;
+    if (word === '' || definition === '' || !validInputRegex.test(word) || !validInputRegex.test(definition)) {
+      document.getElementById('feedback').textContent = valid;
       return;
     }
     const xhr = new XMLHttpRequest();
@@ -11,9 +12,14 @@ document.getElementById('storeForm').addEventListener('submit', function(event) 
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function() {
       if (xhr.status === 200) {
-        document.getElementById('feedback').textContent = xhr.responseText;
+        const response = JSON.parse(xhr.responseText);
+        const message = response.message;
+        const entry = response.entry;
+        const words = response.words;
+        document.getElementById('feedback').textContent = `${message}\n\n${entry.word} : ${entry.definition} ${words}`;
       } else {
-        document.getElementById('feedback').textContent = Error + xhr.statusText;
+        const response = JSON.parse(xhr.responseText);
+        document.getElementById('feedback').textContent = Error + response.error;
       }
     };
     xhr.send(JSON.stringify({ word, definition }));
